@@ -10,7 +10,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:elevation="4dp"
         android:gravity="center_vertical"
         app:theme="@style/ToolBarStyle"
@@ -24,7 +23,7 @@
         android:fillViewport="true"
         android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".activities.AboutActivity">
+        tools:context=".AboutActivity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -53,7 +52,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:letterSpacing="0.5"
+                android:letterSpacing="0.25"
                 android:text="@string/tollfree_number"
                 android:textAlignment="center"
                 android:textColor="@color/black"

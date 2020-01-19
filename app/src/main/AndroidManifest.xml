@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+
 
     <application
         android:name=".CBOnlineApp"
@@ -17,10 +19,27 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppThemeMain">
         <activity
-            android:name=".activities.SplashActivity"
-            android:screenOrientation="portrait"
+            android:name=".URLRouterActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="online.codingblocks.com" />
+                <data android:pathPrefix="/classroom" />
+                <data android:pathPrefix="/courses" />
+                <data android:pathPrefix="/player" />
+            </intent-filter>
+        </activity> <!-- <meta-data android:name="android.max_aspect" android:value="2.1" /> -->
+
+        <activity
+            android:name=".LoginActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,19 +56,12 @@
                     android:host="app.codingblocks.com"
                     android:scheme="https" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.app.shortcuts"
-                android:resource="@xml/shortcut" />
         </activity>
         <activity
-            android:name=".activities.LoginActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".activities.HomeActivity"
-            android:label="@string/title_activity_home"
-            android:launchMode="singleTop"
-            android:theme="@style/myTheme">
+            android:name=".home.HomeActivity"
+            android:configChanges="orientation"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -61,38 +73,60 @@
                     android:scheme="app" />
             </intent-filter>
         </activity>
-
-        <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
-
         <activity
-            android:name=".activities.CourseActivity"
-            android:parentActivityName=".activities.HomeActivity"
-            android:theme="@style/myTheme" />
+            android:name=".course.CourseActivity"
+            android:parentActivityName=".home.HomeActivity"
+            android:theme="@style/Theme.CB.Course" />
         <activity
-            android:name=".activities.MyCourseActivity"
+            android:name=".mycourse.MyCourseActivity"
             android:label="@string/title_activity_my_course"
             android:launchMode="singleTop"
-            android:parentActivityName=".activities.HomeActivity"
-            android:theme="@style/myTheme">
+            android:parentActivityName=".home.HomeActivity"
+            android:theme="@style/AppThemeMain">
             <intent-filter>
                 <action android:name="com.coddinblocks.appshortcuts.OPEN_DYNAMIC_SHORTCUT" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.codingblocks.cbonlineapp.activities.HomeActivity" />
+                android:value="com.codingblocks.cbonlineapp.home.HomeActivity" />
         </activity>
         <activity
-            android:name=".activities.VideoPlayerActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".notifications.NotificationsActivity"
+            android:launchMode="singleTop"
+            android:parentActivityName=".home.HomeActivity" />
         <activity
-            android:name=".activities.PdfActivity"
+            android:name=".jobs.JobsActivity"
+            android:launchMode="singleTop"
+            android:parentActivityName=".home.HomeActivity"
+            android:theme="@style/Theme.Jobs" />
+        <activity
+            android:name=".jobs.jobdetails.JobDetailActivity"
+            android:parentActivityName=".jobs.JobsActivity"
+            android:theme="@style/Theme.Jobs"
+            android:windowSoftInputMode="stateVisible" />
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".home.HomeActivity" />
+        <activity
+            android:name=".AboutActivity"
+            android:parentActivityName=".home.HomeActivity" />
+        <activity
+            android:name=".player.VideoPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
+            android:supportsPictureInPicture="true"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+        <activity
+            android:name=".PdfActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".quiz.QuizActivity"
+            android:launchMode="singleTop"
+            android:parentActivityName=".mycourse.MyCourseActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeMain" />
 
         <receiver android:name=".util.DownloadBroadcastReceiver">
             <intent-filter>
@@ -101,26 +135,29 @@
         </receiver>
 
         <service
-            android:name=".services.DownloadService"
+            android:name=".util.DownloadService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".util.SectionDownloadService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity
-            android:name=".activities.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".activities.HomeActivity"
-            android:theme="@style/myTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.codingblocks.cbonlineapp.activities.HomeActivity" />
-        </activity>
-        <activity
-            android:name=".activities.AboutActivity"
-            android:theme="@style/myTheme" />
-        <activity
-            android:name=".activities.QuizActivity"
-            android:parentActivityName=".activities.MyCourseActivity"
-            android:theme="@style/myTheme" />
+        <meta-data
+            android:name="com.onesignal.NotificationOpened.DEFAULT"
+            android:value="DISABLE" />
+        <meta-data
+            android:name="com.onesignal.NotificationAccentColor.DEFAULT"
+            android:value="FF6666" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/cblogo" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+        <meta-data
+            android:name="android.app.shortcuts"
+            android:resource="@xml/shortcut" />
     </application>
 
 </manifest>

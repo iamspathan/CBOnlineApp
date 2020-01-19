@@ -1,16 +1,31 @@
 package com.codingblocks.cbonlineapp
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import cn.campusapp.router.Router
 import cn.campusapp.router.router.IActivityRouteTableInitializer
-import com.codingblocks.cbonlineapp.activities.CourseActivity
-import com.codingblocks.cbonlineapp.activities.MyCourseActivity
-import com.crashlytics.android.core.CrashlyticsCore
+import com.codingblocks.cbonlineapp.course.CourseActivity
+import com.codingblocks.cbonlineapp.mycourse.MyCourseActivity
+import com.codingblocks.cbonlineapp.player.VideoPlayerActivity
+import com.codingblocks.cbonlineapp.util.CONTENT_ID
+import com.codingblocks.cbonlineapp.util.COURSE_ID
+import com.codingblocks.cbonlineapp.util.COURSE_TAB
+import com.codingblocks.cbonlineapp.util.DOWNLOAD_CHANNEL_ID
+import com.codingblocks.cbonlineapp.util.NotificationOpenedHandler
+import com.codingblocks.cbonlineapp.util.NotificationReceivedHandler
+import com.codingblocks.cbonlineapp.util.RUN_ATTEMPT_ID
+import com.codingblocks.cbonlineapp.util.RUN_ID
+import com.codingblocks.cbonlineapp.util.SECTION_ID
+import com.crashlytics.android.Crashlytics
+import com.onesignal.OneSignal
 import com.squareup.picasso.Picasso
 import io.github.inflationx.calligraphy3.CalligraphyConfig
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor
 import io.github.inflationx.viewpump.ViewPump
+import org.jetbrains.anko.notificationManager
 import org.koin.android.ext.android.startKoin
+import java.io.File
 
 class CBOnlineApp : Application() {
 
@@ -22,19 +37,42 @@ class CBOnlineApp : Application() {
         super.onCreate()
         mInstance = this
 
-        startKoin(this, listOf(
-            viewModelModule,
-            databaseModule
-        ))
+        // Create Notification Channel
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(
+                DOWNLOAD_CHANNEL_ID,
+                "Course Download",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+
+        startKoin(
+            this,
+            listOf(
+                viewModelModule,
+                databaseModule
+            )
+        )
+
         Picasso.setSingletonInstance(Picasso.Builder(this).build())
 
-        //Initiate Calligraphy
+        // OneSignal Initialization
+        OneSignal.startInit(this)
+            .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+            .unsubscribeWhenNotificationsAreDisabled(true)
+            .setNotificationReceivedHandler(NotificationReceivedHandler())
+            .setNotificationOpenedHandler(NotificationOpenedHandler())
+            .init()
+
+        // Initiate Calligraphy
         ViewPump.init(
             ViewPump.builder()
                 .addInterceptor(
                     CalligraphyInterceptor(
                         CalligraphyConfig.Builder()
-                            .setDefaultFontPath("fonts/NunitoSans-Regular.ttf")
+                            .setDefaultFontPath("fonts/nunitosans_regular.ttf")
                             .setFontAttrId(R.attr.fontPath)
                             .build()
                     )
@@ -42,19 +80,46 @@ class CBOnlineApp : Application() {
                 .build()
         )
 
-        //Configure Routers
+        // Configure Routers
         try {
             Router.initActivityRouter(applicationContext, IActivityRouteTableInitializer { router ->
-                router["activity://course/classroom/course/:s{course_id}/run/:s{runId}/overview"] =
+                router["activity://courseRun/https://online.codingblocks.com/classroom/courseRun/:s{$COURSE_ID}/run/:s{$RUN_ID}/:s{$COURSE_TAB}"] =
                     MyCourseActivity::class.java
-                router["activity://course/https://online.codingblocks.com/courses/:s{courseId}"] =
+                router["activity://courseRun/https://online.codingblocks.com/courses/:s{courseId}"] =
                     CourseActivity::class.java
+                router["activity://courseRun/https://online.codingblocks.com/player/:s{$RUN_ATTEMPT_ID}/content/:s{$SECTION_ID}/:s{$CONTENT_ID}"] =
+                    VideoPlayerActivity::class.java
             })
         } catch (e: ConcurrentModificationException) {
-            CrashlyticsCore.getInstance().apply {
-                setString("Router not working", e.localizedMessage)
-                log("Concurrent Modification Exception")
+            Crashlytics.log("Router not working : ${e.localizedMessage}")
+        }
+    }
+
+    fun clearApplicationData() {
+        val applicationCacheDirectory = File(cacheDir.parent)
+        if (applicationCacheDirectory.exists()) {
+            val fileNames = applicationCacheDirectory.list()
+            for (fileName in fileNames) {
+                if (fileName != "lib") {
+                    deleteFile(File(applicationCacheDirectory, fileName))
+                }
             }
         }
+    }
+
+    private fun deleteFile(file: File?): Boolean {
+        var deletedAll = true
+        if (file != null) {
+            if (file.isDirectory) {
+                val children = file.list()
+                for (i in children.indices) {
+                    deletedAll = deleteFile(File(file, children[i])) && deletedAll
+                }
+            } else {
+                deletedAll = file.delete()
+            }
+        }
+
+        return deletedAll
     }
 }

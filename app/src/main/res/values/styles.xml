@@ -4,6 +4,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:fontFamily">@font/nunitosans_regular</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
@@ -11,19 +12,37 @@
 
     </style>
 
-
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-
-    </style>
-
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="myTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeMain" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/nunitosans_regular</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+        <!-- enable window content transitions -->
+        <item name="android:windowActivityTransitions">true</item>
+
+        <!-- specify enter and exit transitions -->
+        <item name="android:windowEnterTransition">@transition/explode</item>
+        <item name="android:windowExitTransition">@transition/explode</item>
+    </style>
+
+    <style name="Theme.Jobs" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:fontFamily">@font/nunitosans_semibold</item>
+        <item name="colorPrimary">@color/colorPrimaryJobs</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkJobs</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Theme.CB.Course" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -33,8 +52,8 @@
         <item name="windowActionBarOverlay">true</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:statusBarColor">@color/white_transparency</item>
-        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
-
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="ToolBarStyle" parent="Theme.AppCompat">
@@ -86,4 +105,16 @@
         <item name="android:layout_height">40dp</item>
     </style>
 
+    <style name="sheetStyle" parent="@style/Theme.Design.Light.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/BottomSheet</item>
+    </style>
+
+    <style name="BottomSheet" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/rounded_dialog</item>
+    </style>
+
+
+    <color name="colorPrimaryDarkJobs">#452ba3</color>
+    <color name="colorPrimaryJobs">#692fdc</color>
 </resources>

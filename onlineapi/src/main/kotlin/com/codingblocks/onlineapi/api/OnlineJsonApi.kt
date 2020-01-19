@@ -1,22 +1,24 @@
 package com.codingblocks.onlineapi.api
 
+import com.codingblocks.onlineapi.models.Applications
 import com.codingblocks.onlineapi.models.CarouselCards
 import com.codingblocks.onlineapi.models.Comment
-import com.codingblocks.onlineapi.models.ContentProgress
+import com.codingblocks.onlineapi.models.Company
 import com.codingblocks.onlineapi.models.Course
 import com.codingblocks.onlineapi.models.DoubtsJsonApi
 import com.codingblocks.onlineapi.models.Instructor
+import com.codingblocks.onlineapi.models.Jobs
 import com.codingblocks.onlineapi.models.LectureContent
 import com.codingblocks.onlineapi.models.MyCourseRuns
 import com.codingblocks.onlineapi.models.MyRunAttempt
 import com.codingblocks.onlineapi.models.Note
 import com.codingblocks.onlineapi.models.Notes
+import com.codingblocks.onlineapi.models.Player
 import com.codingblocks.onlineapi.models.Progress
 import com.codingblocks.onlineapi.models.Question
 import com.codingblocks.onlineapi.models.QuizAttempt
 import com.codingblocks.onlineapi.models.Quizzes
 import com.codingblocks.onlineapi.models.Sections
-import kotlinx.coroutines.Deferred
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
@@ -27,6 +29,7 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.*
 
 interface OnlineJsonApi {
 
@@ -68,12 +71,12 @@ interface OnlineJsonApi {
     ): Call<ArrayList<Course>>
 
     @GET("sections/{id}")
-    fun getSections(
+    suspend fun getSections(
         @Path("id") id: String,
         @Query("exclude") query: String = "contents.*",
         @Query("include") include: String = "contents",
         @Query("sort") sort: String = "content.section_content.order"
-    ): Deferred<Response<Sections>>
+    ): Response<Sections>
 
 
     @GET("runs")
@@ -115,8 +118,7 @@ interface OnlineJsonApi {
     ): Call<List<QuizAttempt>>
 
     @POST("progresses")
-    fun setProgress(@Body params: Progress): Call<ContentProgress>
-
+    fun setProgress(@Body params: Progress): Call<Progress>
 
     @GET("quiz_attempts/{id}")
     fun getQuizAttemptById(
@@ -166,10 +168,40 @@ interface OnlineJsonApi {
 
 
     @PATCH("progresses/{id}")
-    fun updateProgress(@Path("id") id: String, @Body params: Progress): Call<ContentProgress>
+    fun updateProgress(@Path("id") id: String, @Body params: Progress): Call<Progress>
 
     @get:GET("carousel_cards?sort=order")
     val carouselCards: Call<ArrayList<CarouselCards>>
+
+    @POST("players")
+    fun setPlayerId(@Body params: Player): Call<ResponseBody>
+
+    @GET("jobs")
+    fun getJobs(
+        @Query("filter[deadline][\$gt]") deadline: String,
+        @Query("filter[postedOn][\$lte]") postedOn: String,
+        @Query("filter[location][\$ilike][\$any][]") filterLoc: List<String>? = null,
+        @Query("filter[type][\$in][]") filterType: List<String>? = null,
+        @Query("page[offset]") pageOffSet: String = "0",
+        @Query("page[limit]") pageLimit: String = "12",
+        @Query("sort") sort: String = "-postedOn"
+    ): Call<ArrayList<Jobs>>
+
+    @GET("companies/{id}")
+    fun getCompany(
+        @Path("id") id: String
+    ): Call<Company>
+
+    @GET("jobs/{id}")
+    fun getJobById(
+        @Path("id") id: String
+    ): Call<Jobs>
+
+    @POST("applications")
+    fun applyJob(@Body params: Applications): Call<ResponseBody>
+
+//    @GET("projects/{id}")
+//    fun getProject(@Path("id") id: String): Call<Projects>
 
 
 }

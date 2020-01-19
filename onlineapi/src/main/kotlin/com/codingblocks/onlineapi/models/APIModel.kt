@@ -5,6 +5,7 @@ import com.github.jasminb.jsonapi.annotations.Id
 import com.github.jasminb.jsonapi.annotations.Relationship
 import com.github.jasminb.jsonapi.annotations.RelationshipLinks
 import com.github.jasminb.jsonapi.annotations.Type
+import com.google.gson.JsonObject
 
 open class BaseModel {
     @Id
@@ -26,13 +27,20 @@ open class Course(
     val reviewCount: Int,
     val difficulty: String,
     val rating: Float,
-    val slug: String,
+    val slug: String?,
     val coverImage: String,
+    val faq: String?,
+    val coursefeatures: ArrayList<CourseFeatures>?,
     @Relationship("instructors")
     val instructors: ArrayList<Instructor>?,
     @Relationship("runs")
     val runs: ArrayList<Runs>?
 ) : BaseModel()
+
+data class CourseFeatures(
+    val icon: String,
+    val text: String
+)
 
 
 @Type("run_attempts")
@@ -81,15 +89,15 @@ open class Sections : BaseModel() {
 open class Instructor(
     val name: String?,
     val description: String?,
-    val photo: String?
+    val photo: String?,
+    val email: String?,
+    val sub: String?
 ) : BaseModel()
 
-class SectionContent : BaseModel() {
-    @JvmField
-    val order: Int? = null
-    @JvmField
-    val sectionId: String? = null
-}
+class SectionContent(
+    val order: Int,
+    val sectionId: String?
+) : BaseModel()
 
 // =======Singular Models =========
 
@@ -105,7 +113,7 @@ class MyCourse(
     val reviewCount: Int,
     val difficulty: String,
     val rating: Float,
-    val slug: String,
+    val slug: String?,
     @Relationship("instructors")
     val instructors: ArrayList<Instructor>?,
     val coverImage: String
@@ -137,10 +145,12 @@ class MyCourseRuns(
     @Relationship("run-attempts")
     var runAttempts: ArrayList<MyRunAttempts>?,
     @Relationship("course")
-    var course: MyCourse? = null,
+    var course: MyCourse?,
     @Relationship("ratings")
     var rating: ArrayList<Rating>?,
-    val whatsappLink: String?
+    val whatsappLink: String?,
+    val productId: Int,
+    val completionThreshold: Int
 ) : BaseModel()
 
 @Type("section")
@@ -269,16 +279,11 @@ class ContentVideoType : BaseModel() {
 }
 
 @Type("progress")
-class ContentProgress : BaseModel() {
-    @JvmField
-    var contentId: String? = null
-    @JvmField
-    var createdAt: String? = null
-    @JvmField
-    var status: String? = null
-    @JvmField
-    var runAttemptId: String? = null
-}
+class ContentProgress(
+    var contentId: String,
+    var createdAt: String,
+    var status: String,
+    var runAttemptId: String) : BaseModel()
 
 @Type("announcement")
 class Announcement : BaseModel() {
@@ -297,7 +302,9 @@ class Announcement : BaseModel() {
 @Type("progresses")
 class Progress : BaseModel() {
     @JvmField
-    var status: String? = null
+    var status: String = "UNDONE"
+    var runAttemptId: String = ""
+    var contentId: String = ""
     @Relationship("run-attempt")
     @JvmField
     var runs: RunAttemptsId? = null
@@ -356,7 +363,7 @@ class QuizAttempt : BaseModel() {
     var qna: Quizqnas? = null
     @Relationship("run-attempt", resolve = true)
     @JvmField
-    var runAttempt: RunAttemptsModel? = null
+    var runAttempt: RunAttemptsId? = null
     @JvmField
     var submission: ArrayList<QuizSubmission> = arrayListOf()
 }
@@ -388,9 +395,6 @@ class QuizQuestion : BaseModel() {
 
 @Type("qnas")
 class Quizqnas : BaseModel()
-
-@Type("run-attempts")
-class RunAttemptsModel : BaseModel()
 
 @Type("doubt")
 class DoubtsJsonApi : BaseModel() {
@@ -470,21 +474,20 @@ class Notes : BaseModel() {
 }
 
 @Type("run_attempt")
-data class RunAttemptId(
+class RunAttemptId(
     @Id
     @JvmField
     val id: String?
 )
 
 @Type("run-attempts")
-data class RunAttemptsId(
+class RunAttemptsId(
     @Id
-    @JvmField
     val id: String?
 )
 
 @Type("content")
-data class ContentId(
+class ContentId(
     @Id
     val id: String?
 )
@@ -493,8 +496,9 @@ data class ContentId(
 open class ContentsId(
     @Id
     val id: String?
-){
+) {
     var contentable: String? = null
+
     val duration: Long? = null
     val title: String? = null
     val sectionContent: SectionContent? = null
@@ -519,8 +523,85 @@ class CarouselCards(
     var buttonLink: String
 ) : BaseModel()
 
+@Type("player")
+class Player(
+    var playerId: String? = null
+)
 
+@Type("jobs")
+class Jobs(
+    val coverImage: String?,
+    val ctc: String,
+    val deadline: String?,
+    val description: String,
+    val eligibility: String,
+    val experience: String,
+    val form: ArrayList<Form>?,
+    val location: String,
+    val postedOn: String,
+    val type: String,
+    val title: String,
+    val accepting: Boolean = false,
+    val eligible: Boolean = false,
+    val status: String = "draft",
+    @Relationship("company")
+    val company: Company?,
+    @Relationship("courses")
+    val courses: ArrayList<CourseId>?,
+    @Relationship("my-application")
+    val application: ApplicationId?
+) : BaseModel()
 
+@Type("courses")
+data class CourseId(
+    @Id
+    val id: String?
+)
+
+class Form(
+    val name: String,
+    val required: Boolean,
+    val title: String,
+    val type: String,
+    val options: String?
+
+)
+
+@Type("companies")
+class Company(
+    val name: String?,
+    val logo: String?,
+    val description: String?,
+    val website: String?,
+    val inactive: Boolean = false,
+    val contacts: ArrayList<Contact>?
+) : BaseModel()
+
+data class Contact(
+    val email: String,
+    val name: String,
+    val phone: String
+)
+
+@Type("applications")
+data class Applications(
+    val extra: JsonObject,
+    val resumeLink: String = "",
+    @Relationship("job")
+    val job: JobId
+) : BaseModel()
+
+@Type("jobs")
+class JobId(
+    @Id
+    val id: String
+)
+
+@Type("applications")
+class ApplicationId(
+    @Id
+    val id: String?
+)
 
 
 

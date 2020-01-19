@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Coding Blocks Online</string>
-    <string name="title_activity_home">HomeActivity</string>
+    <string name="toolbar_title">Coding Blocks</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="all_courses">All Courses</string>
@@ -9,22 +9,19 @@
     <string name="recommended_courses">Recommended Courses</string>
     <string name="summary">Summary</string>
     <string name="student_feedback">Student Feedback</string>
+    <string name="topics_covered">Major Topics Covered</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_my_course">MyCourseActivity</string>
     <string name="course_progress">Course Progress</string>
     <string name="trial_text">Start Free Trial</string>
     <string name="buy_text">Buy Now</string>
-    <string name="introlecturedescription">2 to 3 lectures will be released every week.\nThere are In-Class Quizzes, Assignments, Notes along with Lecture Videos in a lecture.\nYou should attempt them all to master each section that you study.\nYou should complete the lectures within the week.</string>
-    <string name="introassignmentdecription">After almost every lecture there will be one assignment.\nAssignments will have deadlines. Submissions after deadline will be subject to penalty (Penalty procedure is explained separately).\nApart from assignments there will be frequent tests analysing your concepts and understanding.</string>
-    <string name="introdoubtsdescription">Apart from instructors taking the course, there are teaching assistants in the course who will be taking your doubts.\nYou can ask doubt on any content that you are facing problem at, be it a video or a question.\nThere is an “Ask Doubt” button on the top right corner to raise your doubt.\nFor doubt resolution TA support will be available between 6PM evening till 12AM midnight, on all seven days.</string>
-    <string name="introsolutiondescription">For many assignment problems, there are hint videos which you can watch. Watching them won\'t add any penalty.\nYou can watch solution videos also for some problems and can check the solution code. But after checking/watching the solution, further submissions to that question will not fetch you any marks.</string>
-    <string name="intropenaltydescription">For every Assignment, there is a soft deadline which is mentioned in every assignment. That is - if you submit problems in your assignment within the soft deadline of its release, you can get the full score for problems (if all the testcases for the problem are passed).\nFor next 10 days (after deadline), a penalty of 25% will be applied on your problem submissions i.e. maximum score that you can get is 0.75*total_score.\nFor next 5 days a penalty of 50% will be applied on your submission, so maximum possible score for a problem will be 0.5*total_score. And after that, you won’t get any marks for your submissions.</string>
-    <string name="introavailablitydescription">Lecture Videos in the course will be accessible by for next five weeks from the release date of the last lecture of the course.\nHint/Solution Videos, quizzes, questions within a lecture, assignments and notes are available to you for lifetime.</string>
-    <string name="introleadeboaddescription">All the lecture questions, quizzes and assignments are graded. Submissions after deadlines will be penalised as per the penalty scheme specified above.\nUnder “Your Percentage Score” you can see your \'With\' and \'Without\' penalty score. \"With penalty score\" is your final score considered for leaderboard and certificates.\n“Without penalty score” is your score without any penalties applied to the score, which just indicates your total progress in the course.\nA leaderboard is maintained for the batch which you can see under overview section in your course. Based on your score you can check your class rank.</string>
-    <string name="introcertificatedescription"><![CDATA[After the module ends all those students whose “With Penalty Score” >= 60% will be awarded course certificates.\nYou will have to fill in your details for the certificate. Option to fill certificates details is right below “Resume to Classroom”.\nAfter the course ends, you will see an option to download your certificate right below “Resume to Classroom”.]]></string>
-    <string name="introendnotedescription">Ultimately, PRACTICE IS THE KEY!\nThe more you practice, better will be the results. Also, avoid missing lectures.\nWe wish all the best in this journey of codes! Keep coding :)]</string>
-    <string name="endnote">Endnote</string>
+    <string name="join_whatsapp">Join WhatsApp Group</string>
+    <string name="introlecturedescription">We are providing access of complete contents on course starting date. If there are any topics which needs to be discussed then we\'ll add more lectures to the course accordingly.
+        \nThere are In-Class Quizzes, Assignments, Notes along with Lecture Videos in a lecture. You should attempt them all to master each section that you study.
+        \nYou should complete the lectures within the specified deadlines.</string>
+    <string name="introassignmentdecription">After almost every lecture there will be one assignment. \nAssignments will have deadlines. Submissions after deadline will be subject to penalty (Penalty procedure is explained separately).\nApart from assignments there will be frequent tests analysing your concepts and understanding.</string>
+    <string name="introdoubtsdescription">Apart from instructors taking the course, there are teaching assistants in the course who will be taking your doubts. \nYou can ask doubt on any content that you are facing problem at, be it a video or a question. There is an “Ask Doubt” button on the top right corner to raise your doubt.\nThe doubt support period is valid for 6 months from the start of course date. This is kept after considering the section deadlines and the content that is available for the students to learn.</string>
     <string name="certificate">Certificate</string>
     <string name="leaderboardtitle">Grading and Leaderboard</string>
     <string name="availabilitytitle">Content Availability</string>
@@ -47,6 +44,7 @@
     <string name="hint_title">Title</string>
     <string name="doubt_title">Ask A Doubt</string>
     <string name="doubt_btn">Post Doubt</string>
+    <string name="cannot_create_doubt">Doubts cannot be created in Trials!</string>
     <string name="showComments">Show Comments</string>
     <string name="hideComments">Hide Comments</string>
     <string name="empty_doubts_text">No doubts yet. Ask one?</string>
@@ -54,7 +52,6 @@
     <string name="verify_desc">You need to verify your account first before continuing</string>
     <string name="verify_title">Verify Now</string>
     <string name="enroll_desc">You have been successfully enrolled into this course</string>
-    <string name="free">free</string>
     <string name="cart_description">Your cart contains other items. Do you want to discard previous items from your cart and continue buying new one?</string>
     <string name="cart_title">Replace Cart Items?</string>
     <string name="yes_continue">Yes,Continue</string>
@@ -94,4 +91,29 @@
     <string name="our_centres">OUR CENTRES</string>
     <string name="contact">Contact</string>
     <string name="mcq">MCQ</string>
+    <string name="notifications">Notifications</string>
+    <string name="search_courses">Search Courses</string>
+    <string name="logout">Logout</string>
+    <string name="create_a_note">Create a Note</string>
+    <string name="create_note">Create Note</string>
+    <string name="leaderboard_emptyView">Leaderboard not available for this course!!</string>
+    <string name="clean_dialog_title">You have reached your data limit!</string>
+    <string name="clean_dialog_description">If you want to continue with the download, Please clear the oldest download.</string>
+    <string name="clean_dialog_okBtn">Clear Oldest Download</string>
+    <string name="clean_dialog_cancelBtn">Cancel Current Download</string>
+    <string name="get_hired">Get Hired</string>
+    <string name="recommended_courses_description">Based on the industry trends, you should complete these courses</string>
+    <string name="applied">Applied</string>
+    <string name="job_eligible">Status:  Eligible</string>
+    <string name="job_not_eligible">Status:  Not Eligible</string>
+    <string name="job_applied">You\'ve already applied for the job</string>
+    <string name="faqs">Frequently Asked Questions</string>
+    <string name="reset_progress">Reset Progress</string>
+    <string name="contents_completed">Contents Completed</string>
+    <string name="resume">Resume</string>
+    <string name="extension_desc">Buy extension for this course</string>
+    <string name="extension_title">Your course will expire soon!</string>
+    <string name="filter_location">Location</string>
+    <string name="filter_job_type">Job Type</string>
+    <string name="offline_message">Progress will be updated when your device goes online.</string>
 </resources>
