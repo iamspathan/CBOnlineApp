@@ -7,7 +7,7 @@
     android:background="#292c33"
     android:id="@+id/codeLayout"
     android:orientation="vertical"
-    tools:context="com.codingblocks.cbonlineapp.mycourse.codechallenge.CodeChallengeActivity">
+    tools:context="com.codingblocks.cbonlineapp.mycourse.content.codechallenge.CodeChallengeActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -31,6 +31,18 @@
                 android:focusable="true"
                 android:padding="15dp"
                 android:src="@drawable/download_states"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/codeBookmarkBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp"
+                android:src="@drawable/bookmark_state"
                 android:visibility="gone" />
 
         </androidx.appcompat.widget.Toolbar>

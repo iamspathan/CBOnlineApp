@@ -14,9 +14,10 @@ import androidx.work.WorkerParameters
 import com.codingblocks.cbonlineapp.R
 import com.codingblocks.cbonlineapp.database.ContentDao
 import com.codingblocks.cbonlineapp.database.models.DownloadData
-import com.codingblocks.cbonlineapp.mycourse.player.VideoPlayerActivity
+import com.codingblocks.cbonlineapp.mycourse.content.player.VideoPlayerActivity
 import com.codingblocks.cbonlineapp.util.CONTENT_ID
 import com.codingblocks.cbonlineapp.util.DOWNLOAD_CHANNEL_ID
+import com.codingblocks.cbonlineapp.util.PreferenceHelper.Companion.getPrefs
 import com.codingblocks.cbonlineapp.util.RUN_ATTEMPT_ID
 import com.codingblocks.cbonlineapp.util.SECTION_ID
 import com.codingblocks.cbonlineapp.util.TITLE
@@ -30,7 +31,6 @@ import com.vdocipher.aegis.offline.DownloadSelections
 import com.vdocipher.aegis.offline.DownloadStatus
 import com.vdocipher.aegis.offline.OptionsDownloader
 import com.vdocipher.aegis.offline.VdoDownloadManager
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -38,6 +38,7 @@ import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import retrofit2.Response
+import java.io.File
 
 class DownloadWorker(context: Context, private val workerParameters: WorkerParameters) :
     CoroutineWorker(context, workerParameters),
@@ -72,7 +73,7 @@ class DownloadWorker(context: Context, private val workerParameters: WorkerParam
                 setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))
                 setContentText("Waiting to Download")
                 setProgress(100, 0, false)
-                color = ContextCompat.getColor(applicationContext,R.color.colorPrimaryDark)
+                color = ContextCompat.getColor(applicationContext, R.color.colorPrimaryDark)
                 setOngoing(false) // THIS is the important line
                 setAutoCancel(false)
             }
@@ -112,8 +113,14 @@ class DownloadWorker(context: Context, private val workerParameters: WorkerParam
                     // we have received the available download options
                     val selectionIndices = intArrayOf(0, 1)
                     val downloadSelections = DownloadSelections(options, selectionIndices)
-                    val file =
-                        applicationContext.getExternalFilesDir(Environment.getDataDirectory().absolutePath)
+                    var file = applicationContext.getExternalFilesDir(Environment.getDataDirectory().absolutePath)
+                    val directories =
+                        applicationContext.getExternalFilesDirs(Environment.getDataDirectory().absolutePath)
+                    if (getPrefs(applicationContext).SP_SD_CARD && directories.size > 1) {
+                        file = directories[1]
+                    } else {
+                        getPrefs(applicationContext).SP_SD_CARD = false
+                    }
                     val folderFile = File(file, "/$videoId")
                     if (!folderFile.exists()) {
                         folderFile.mkdir()
@@ -134,7 +141,8 @@ class DownloadWorker(context: Context, private val workerParameters: WorkerParam
                     // there was an error downloading the available options
                     Log.e("Service Error", "onOptionsNotReceived : $errDesc")
                 }
-            })
+            }
+        )
     }
 
     private fun sendNotification(data: DownloadData, downloadPercent: Int) {

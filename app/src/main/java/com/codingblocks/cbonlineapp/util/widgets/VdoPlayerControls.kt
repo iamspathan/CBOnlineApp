@@ -1,17 +1,13 @@
 package com.codingblocks.cbonlineapp.util.widgets
 
 import android.content.Context
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.FrameLayout
-import android.widget.ImageButton
-import android.widget.ListAdapter
-import android.widget.ProgressBar
-import android.widget.SeekBar
-import android.widget.TextView
+import android.widget.*
 import androidx.core.view.isVisible
 import com.airbnb.lottie.LottieAnimationView
 import com.codingblocks.cbonlineapp.R
@@ -21,6 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vdocipher.aegis.media.ErrorDescription
 import com.vdocipher.aegis.media.Track
 import com.vdocipher.aegis.player.VdoPlayer
+import com.vdocipher.aegis.player.VdoPlayer.VdoInitParams
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.max
@@ -60,6 +57,13 @@ class VdoPlayerControls @JvmOverloads constructor(
         fun onFullscreenAction(enterFullscreen: Boolean): Boolean
     }
 
+    interface VdoParamsGenerator {
+        /**
+         * @return new vdo params
+         */
+        fun getNewVdoInitParams(): VdoInitParams?
+    }
+
     private val playButton: View
     private val pauseButton: View
     private val fastForwardButton: LottieAnimationView
@@ -70,6 +74,9 @@ class VdoPlayerControls @JvmOverloads constructor(
     private val speedControlButton: ImageButton
     private val backButton: ImageButton
 
+    private var helperThread: HandlerThread? = null
+    private var helperHandler: Handler? = null
+
     //    private val captionsButton: ImageButton
     private val qualityButton: ImageButton
     private val enterFullscreenButton: ImageButton
@@ -79,6 +86,7 @@ class VdoPlayerControls @JvmOverloads constructor(
     private val errorTextView: TextView
     private val controlPanel: View
     private val controllerBackground: View
+    private val lock: ImageView
 
     private val ffwdMs: Int
     private val rewindMs: Int
@@ -89,13 +97,17 @@ class VdoPlayerControls @JvmOverloads constructor(
     private var fullscreen: Boolean = false
     private var chosenSpeedIndex = 2
 
+    private var needNewVdoParams = false
     private var player: VdoPlayer? = null
     private val uiListener: UiListener
     private var lastErrorParams: VdoPlayer.VdoInitParams? = null
     private var fullscreenActionListener: FullscreenActionListener? = null
     private var visibilityListener: ControllerVisibilityListener? = null
+    private var vdoParamsGenerator: VdoParamsGenerator? = null
 
     private val hideAction = Runnable { hide() }
+
+    private val ERROR_CODES_FOR_NEW_PARAMS: List<Int> = listOf(2013, 2018)
 
     init {
         ffwdMs = DEFAULT_FAST_FORWARD_MS
@@ -140,6 +152,8 @@ class VdoPlayerControls @JvmOverloads constructor(
         controlPanel = findViewById(R.id.vdo_control_panel)
         controllerBackground = findViewById(R.id.vdo_controller_bg)
         setOnClickListener(uiListener)
+        lock = findViewById(R.id.lock)
+        lock.setOnClickListener(uiListener)
     }
 
     fun setPlayer(newPlayer: VdoPlayer?) {
@@ -167,6 +181,10 @@ class VdoPlayerControls @JvmOverloads constructor(
         hideAfterTimeout()
     }
 
+    fun setVdoParamsGenerator(vdoParamsGenerator: VdoParamsGenerator) {
+        this.vdoParamsGenerator = vdoParamsGenerator
+    }
+
     fun hide() {
         if (controllerVisible() && lastErrorParams == null) {
             controlPanel.visibility = GONE
@@ -180,15 +198,37 @@ class VdoPlayerControls @JvmOverloads constructor(
         updateFullscreenButtons()
     }
 
+    fun setScreenLock(locked: Boolean) {
+        val playing = player?.playWhenReady ?: false
+        lock.isSelected = locked
+        qualityButton.isVisible = !locked
+        speedControlButton.isVisible = !locked
+        enterFullscreenButton.isVisible = if (fullscreen) false else !locked
+        exitFullscreenButton.isVisible = if (fullscreen) !locked else false
+        playButton.isVisible = if (playing) false else !locked
+        pauseButton.isVisible = if (playing) !locked else false
+        fastForwardButton.isVisible = !locked
+        rewindButton.isVisible = !locked
+        seekBar.isEnabled = !locked
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         attachedToWindow = true
+
+        helperThread = HandlerThread(TAG)
+        helperThread!!.start()
+        helperHandler = Handler(helperThread!!.looper)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         attachedToWindow = false
         removeCallbacks(hideAction)
+
+        helperThread!!.quit()
+        helperThread = null
+        helperHandler = null
     }
 
     fun controllerVisible(): Boolean {
@@ -217,8 +257,8 @@ class VdoPlayerControls @JvmOverloads constructor(
         val playing = (player?.playWhenReady ?: false) &&
             playbackState != VdoPlayer.STATE_IDLE &&
             playbackState != VdoPlayer.STATE_ENDED
-        playButton.visibility = if (playing) GONE else VISIBLE
-        pauseButton.visibility = if (playing) VISIBLE else GONE
+        playButton.visibility = if (playing || lock.isSelected) GONE else VISIBLE
+        pauseButton.visibility = if (playing && !lock.isSelected) VISIBLE else GONE
     }
 
     private fun rewind() {
@@ -247,8 +287,8 @@ class VdoPlayerControls @JvmOverloads constructor(
 
         player?.let {
             if (it.isSpeedControlSupported) {
-                speedControlButton.visibility = VISIBLE
-                qualityButton.visibility = VISIBLE
+                speedControlButton.isVisible = !lock.isSelected
+                qualityButton.isVisible = !lock.isSelected
 
                 val speed = it.playbackSpeed
                 chosenSpeedIndex = getClosestFloatIndex(allowedSpeedList, speed)
@@ -290,7 +330,8 @@ class VdoPlayerControls @JvmOverloads constructor(
 
     private fun showSpeedControlDialog() {
         MaterialAlertDialogBuilder(context, R.style.CustomMaterialDialog)
-            .setSingleChoiceItems(allowedSpeedStrList,
+            .setSingleChoiceItems(
+                allowedSpeedStrList,
                 chosenSpeedIndex
             ) { dialog, which ->
                 player?.let { it.playbackSpeed = allowedSpeedList[which] }
@@ -363,24 +404,63 @@ class VdoPlayerControls @JvmOverloads constructor(
         controlPanel.visibility = View.GONE
         errorView.visibility = View.VISIBLE
         errorTextView.visibility = View.VISIBLE
-        val errMsg = "An error occurred : " + errorDescription.errorCode + "\nTap to retry"
+        val errMsg: String = getErrorMessage(errorDescription)
         errorTextView.text = errMsg
         show()
     }
 
-    private fun retryAfterError() {
-        player?.let { player ->
-            lastErrorParams?.let {
+    private fun getErrorMessage(errorDescription: ErrorDescription): String {
+        val messagePrefix = "Error: " + errorDescription.errorCode + ". "
+        return when (errorDescription.errorCode) {
+            5110, 5124, 5130 -> messagePrefix + "Please check your internet connection and try restarting " +
+                "the app."
+            5160, 5161 -> messagePrefix + "Downloaded media files have been accidentally deleted by " +
+                "some other app in your mobile. Kindly download the video again and do " +
+                "not use cleaner apps."
+            6101, 6120 -> messagePrefix + "Kindly try restarting the phone and app."
+            1220, 1250, 1253, 2021, 6155, 6156, 6157, 6166, 6178, 6186 -> messagePrefix + "Phone is not compatible for secure playback. " +
+                "Kindly update your OS, restart the phone and app. If still not " +
+                "corrected, factory reset can be tried if possible."
+            6187 -> messagePrefix + "Rental license for downloaded video has expired. Kindly " +
+                "download again."
+            else -> """
+                An error occurred: ${errorDescription.errorCode}
+                Retrying again
+                """.trimIndent()
+        }
+    }
+
+    fun retryAfterError() {
+        if (player != null && lastErrorParams != null) {
+            if (!needNewVdoParams) {
                 errorView.visibility = GONE
                 errorTextView.visibility = GONE
                 controlPanel.visibility = VISIBLE
-                player.load(it)
+                player!!.load(lastErrorParams)
                 lastErrorParams = null
+            } else if (vdoParamsGenerator != null && helperHandler != null) {
+                helperHandler!!.post {
+                    val retryParams = vdoParamsGenerator!!.getNewVdoInitParams()
+                    if (retryParams != null) {
+                        post {
+                            errorView.visibility = GONE
+                            errorTextView.visibility = GONE
+                            controlPanel.visibility = VISIBLE
+                            player!!.load(retryParams)
+                            lastErrorParams = null
+                        }
+                    }
+                }
+            } else {
+                Log.e(TAG, "cannot retry loading params")
+                Toast.makeText(context, "cannot retry loading params", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private inner class UiListener : VdoPlayer.PlaybackEventListener, SeekBar.OnSeekBarChangeListener,
+    private inner class UiListener :
+        VdoPlayer.PlaybackEventListener,
+        SeekBar.OnSeekBarChangeListener,
         OnClickListener {
 
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
@@ -432,6 +512,8 @@ class VdoPlayerControls @JvmOverloads constructor(
                 toggleFullscreen()
             } else if (v === errorView || v === errorTextView) {
                 retryAfterError()
+            } else if (v == lock) {
+                setScreenLock(!lock.isSelected)
             } else if (v === this@VdoPlayerControls) {
                 hideAfterTimeout = false
                 if (controllerVisible()) {
@@ -476,6 +558,7 @@ class VdoPlayerControls @JvmOverloads constructor(
 
         override fun onLoadError(vdoParams: VdoPlayer.VdoInitParams, errorDescription: ErrorDescription) {
             lastErrorParams = vdoParams
+            needNewVdoParams = ERROR_CODES_FOR_NEW_PARAMS.contains(errorDescription.errorCode)
             showError(errorDescription)
         }
 
@@ -485,6 +568,7 @@ class VdoPlayerControls @JvmOverloads constructor(
 
         override fun onError(vdoParams: VdoPlayer.VdoInitParams, errorDescription: ErrorDescription) {
             lastErrorParams = vdoParams
+            needNewVdoParams = ERROR_CODES_FOR_NEW_PARAMS.contains(errorDescription.errorCode)
             showError(errorDescription)
         }
 

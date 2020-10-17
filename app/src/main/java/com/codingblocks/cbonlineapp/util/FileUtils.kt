@@ -4,13 +4,14 @@ import android.content.Context
 import android.os.Environment
 import android.util.Log
 import com.codingblocks.cbonlineapp.settings.SettingsActivity
+import com.codingblocks.cbonlineapp.util.PreferenceHelper.Companion.getPrefs
 import com.codingblocks.cbonlineapp.util.extensions.folderSize
 import com.codingblocks.cbonlineapp.util.extensions.getPrefs
-import java.io.File
-import java.io.InputStream
 import org.jetbrains.anko.intentFor
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
+import java.io.InputStream
 
 const val FILE_THRESHOLD = 256000
 const val GB_TO_KB = 1024 * 1024
@@ -18,7 +19,11 @@ const val GB_TO_KB = 1024 * 1024
 object FileUtils {
 
     private fun getCommonPath(context: Context) =
-        context.getExternalFilesDir(Environment.getDataDirectory().absolutePath)
+        if (getPrefs(context).SP_SD_CARD) {
+            context.getExternalFilesDirs(Environment.getDataDirectory().absolutePath)[1]
+        } else {
+            context.getExternalFilesDir(Environment.getDataDirectory().absolutePath)
+        }
 
     fun deleteDatabaseFile(context: Context, databaseName: String) {
         val databases = File(context.applicationInfo.dataDir + "/databases")
@@ -58,9 +63,11 @@ object FileUtils {
             for (file in files)
                 mutableFiles.add(file)
 
-            mutableFiles.sortWith(Comparator { o1, o2 ->
-                o1.lastModified().compareTo(o2.lastModified())
-            })
+            mutableFiles.sortWith(
+                Comparator { o1, o2 ->
+                    o1.lastModified().compareTo(o2.lastModified())
+                }
+            )
             mutableFiles[0].delete()
         }
     }

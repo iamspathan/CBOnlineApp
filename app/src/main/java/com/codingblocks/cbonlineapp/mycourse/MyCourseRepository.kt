@@ -29,6 +29,7 @@ import com.codingblocks.onlineapi.models.PerformanceResponse
 import com.codingblocks.onlineapi.models.RankResponse
 import com.codingblocks.onlineapi.models.ResetRunAttempt
 import com.codingblocks.onlineapi.models.RunAttempts
+import com.codingblocks.onlineapi.models.SendFeedback
 import com.codingblocks.onlineapi.safeApiCall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -69,7 +70,10 @@ class MyCourseRepository(
             runAttempt.lastAccessedAt ?: "",
             runAttempt.run?.id ?: "",
             runAttempt.certifcate?.url ?: "",
-            runAttempt.runTier ?: "PREMIUM"
+            runAttempt.runTier ?: "PREMIUM",
+            runAttempt.paused,
+            runAttempt.pauseTimeLeft,
+            runAttempt.lastPausedLeft
         )
         attemptDao.update(runAttemptModel)
 
@@ -229,20 +233,22 @@ class MyCourseRepository(
             if (content.progress != null) {
                 status =
                     content.progress?.status
-                        ?: ""
+                    ?: ""
                 progressId =
                     content.progress?.id
-                        ?: ""
+                    ?: ""
             } else {
                 status =
                     "UNDONE"
             }
             content.bookmark?.let {
-                bookmark = BookmarkModel(it.id ?: "",
+                bookmark = BookmarkModel(
+                    it.id ?: "",
                     it.runAttemptId ?: "",
                     it.contentId ?: "",
                     it.sectionId ?: "",
-                    it.createdAt ?: "")
+                    it.createdAt ?: ""
+                )
             }
 
             val newContent =
@@ -334,4 +340,24 @@ class MyCourseRepository(
     suspend fun requestApproval(attemptId: String) = safeApiCall { CBOnlineLib.api.requestApproval(attemptId) }
 
     suspend fun getPerformance() = safeApiCall { CBOnlineLib.api.getHackerBlocksPerformance() }
+
+    suspend fun pauseCourse(id: String?) = safeApiCall {
+        checkNotNull(id) { "RunAttempt Id cannot be null" }
+        CBOnlineLib.onlineV2JsonApi.pauseCourse(id)
+    }
+
+    suspend fun unPauseCourse(id: String?) = safeApiCall {
+        checkNotNull(id) { "RunAttempt Id cannot be null" }
+        CBOnlineLib.onlineV2JsonApi.unPauseCourse(id)
+    }
+
+    suspend fun sendFeedback(id: String, feedback: SendFeedback) = safeApiCall { CBOnlineLib.api.sendFeedback(id, feedback) }
+
+    suspend fun getFeedback(id: String) = safeApiCall { CBOnlineLib.api.getFeedback(id) }
+
+    suspend fun updateRunAttempt(runAttempt: RunAttempts) {
+        attemptDao.updatePause(runAttempt.id, runAttempt.paused, runAttempt.pauseTimeLeft, runAttempt.lastPausedLeft)
+    }
+
+    fun getRunAttempt(id: String) = attemptDao.getRunAttempt(id)
 }

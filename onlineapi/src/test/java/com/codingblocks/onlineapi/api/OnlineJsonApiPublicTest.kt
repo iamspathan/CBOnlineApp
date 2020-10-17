@@ -9,6 +9,7 @@ import org.junit.Test
 
 class OnlineJsonApiPublicTest {
     lateinit var api: OnlineJsonApi
+    lateinit var hackApi: OnlineRestApi
 
     @Before
     fun `SET JWT`() {
@@ -23,8 +24,12 @@ class OnlineJsonApiPublicTest {
             override var refreshToken: String
                 get() = refreshToken
                 set(value) {}
+            override var baseUrl: String
+                get() = "api-online.codingblocks.xyz"
+                set(value) {}
         })
         api = CBOnlineLib.onlineV2JsonApi
+        hackApi = CBOnlineLib.hackapi
     }
 
     @Test
@@ -61,5 +66,11 @@ class OnlineJsonApiPublicTest {
     fun `GET carouselCards`() = runBlocking {
         val carouselCards = api.getCarouselCards().body()
         Assert.assertNotNull(carouselCards)
+    }
+
+    @Test
+    fun `GET fetchBanners`() = runBlocking {
+        val banners = hackApi.getBanner().body()
+        Assert.assertNotNull(banners)
     }
 }

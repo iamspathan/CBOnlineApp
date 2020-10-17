@@ -23,21 +23,23 @@ import com.codingblocks.cbonlineapp.database.models.CourseRunPair
 import com.codingblocks.cbonlineapp.database.models.RunPerformance
 import com.codingblocks.cbonlineapp.database.models.SectionContentHolder
 import com.codingblocks.cbonlineapp.util.CONTENT_ID
+import com.codingblocks.cbonlineapp.util.COURSE_ID
 import com.codingblocks.cbonlineapp.util.COURSE_NAME
 import com.codingblocks.cbonlineapp.util.PREMIUM
 import com.codingblocks.cbonlineapp.util.PreferenceHelper
-import com.codingblocks.cbonlineapp.workers.ProgressWorker
 import com.codingblocks.cbonlineapp.util.RUN_ATTEMPT_ID
 import com.codingblocks.cbonlineapp.util.RUN_ID
-import com.codingblocks.cbonlineapp.util.livedata.DoubleTrigger
 import com.codingblocks.cbonlineapp.util.extensions.runIO
 import com.codingblocks.cbonlineapp.util.extensions.savedStateValue
+import com.codingblocks.cbonlineapp.util.livedata.DoubleTrigger
+import com.codingblocks.cbonlineapp.workers.ProgressWorker
 import com.codingblocks.onlineapi.ResultWrapper
 import com.codingblocks.onlineapi.fetchError
 import com.codingblocks.onlineapi.models.Leaderboard
 import com.codingblocks.onlineapi.models.ResetRunAttempt
-import java.util.concurrent.TimeUnit
+import com.codingblocks.onlineapi.models.SendFeedback
 import kotlinx.coroutines.Dispatchers
+import java.util.concurrent.TimeUnit
 
 class MyCourseViewModel(
     private val handle: SavedStateHandle,
@@ -49,6 +51,7 @@ class MyCourseViewModel(
     var name by savedStateValue<String>(handle, COURSE_NAME)
     var runId by savedStateValue<String>(handle, RUN_ID)
     var premiumRun by savedStateValue<Boolean>(handle, PREMIUM)
+    var courseId by savedStateValue<String>(handle, COURSE_ID)
 
     var progress: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -159,7 +162,7 @@ class MyCourseViewModel(
                     }
                 } else {
                     if (code() == 404)
-                    emit(emptyList<Leaderboard>())
+                        emit(emptyList<Leaderboard>())
                     else
                         setError(fetchError(code()))
                 }
@@ -203,7 +206,7 @@ class MyCourseViewModel(
     }
 
     fun requestGoodies(name: String, address: String, postal: String, mobile: String?) {
-        //Todo - Complete this
+        // Todo - Complete this
     }
 
     fun downloadCertificateAndShow(context: Context, certificateUrl: String, fileName: String) {
@@ -247,6 +250,66 @@ class MyCourseViewModel(
     }
 
     fun getHackerBlocksPerformance() = repo.getHackerBlocksPerformance()
+
+    fun pauseCourse() = liveData {
+        when (val response = repo.pauseCourse(attemptId)) {
+            is ResultWrapper.GenericError -> setError(response.error)
+            is ResultWrapper.Success -> with(response.value) {
+                if (isSuccessful) {
+                    body()?.let { repo.updateRunAttempt(it) }
+                    emit(true)
+                } else {
+                    errorLiveData.postValue("There was some error")
+                }
+            }
+        }
+    }
+
+    fun unPauseCourse() = liveData {
+        when (val response = repo.unPauseCourse(attemptId)) {
+            is ResultWrapper.GenericError -> setError(response.error)
+            is ResultWrapper.Success -> with(response.value) {
+                if (isSuccessful) {
+                    body()?.let { repo.updateRunAttempt(it) }
+                    emit(true)
+                } else {
+                    errorLiveData.postValue("There was some error")
+                }
+            }
+        }
+    }
+
+    fun sendFeedback(feedback: SendFeedback) = liveData {
+        when (val response = courseId?.let { repo.sendFeedback(it, feedback) }) {
+            is ResultWrapper.GenericError -> {
+                setError(response.error)
+            }
+            is ResultWrapper.Success -> with(response.value) {
+                if (isSuccessful) {
+                    emit(true)
+                } else {
+                    errorLiveData.postValue("There was some error")
+                }
+            }
+        }
+    }
+
+    fun getFeedback() = liveData {
+        when (val response = courseId?.let { repo.getFeedback(it) }) {
+            is ResultWrapper.GenericError -> {
+                setError(response.error)
+            }
+            is ResultWrapper.Success -> with(response.value) {
+                if (isSuccessful) {
+                    emit(body())
+                } else {
+                    errorLiveData.postValue("There was some error")
+                }
+            }
+        }
+    }
+
+    fun getRunAttempt() = repo.getRunAttempt(attemptId!!)
 }
 
 //    fun fetchExtensions(productId: Int): MutableLiveData<List<ProductExtensionsItem>> {

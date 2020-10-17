@@ -1,12 +1,15 @@
 package com.codingblocks.onlineapi.api
 
+import com.codingblocks.onlineapi.models.Banner
 import com.codingblocks.onlineapi.models.DoubtStats
 import com.codingblocks.onlineapi.models.Extension
+import com.codingblocks.onlineapi.models.Feedback
 import com.codingblocks.onlineapi.models.Leaderboard
 import com.codingblocks.onlineapi.models.PerformanceResponse
 import com.codingblocks.onlineapi.models.RankResponse
 import com.codingblocks.onlineapi.models.RatingModel
 import com.codingblocks.onlineapi.models.ResetRunAttempt
+import com.codingblocks.onlineapi.models.SendFeedback
 import com.codingblocks.onlineapi.models.SpinResponse
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -146,4 +149,21 @@ interface OnlineRestApi {
 
     @POST("v2/spins/draw")
     suspend fun drawSpin(): Response<SpinResponse>
+
+    @POST("v2/runs/addOrder")
+    suspend fun addOrder(): Response<JsonObject>
+
+    @POST("v2/courses/{id}/rating")
+    suspend fun sendFeedback(
+        @Path("id") id: String,
+        @Body json: SendFeedback
+    ): Response<Feedback>
+
+    @GET("v2/courses/{id}/rating")
+    suspend fun getFeedback(
+        @Path("id") id: String
+    ): Response<Feedback>
+
+    @GET("dashboard-banners")
+    suspend fun getBanner(): Response<List<Banner>>
 }

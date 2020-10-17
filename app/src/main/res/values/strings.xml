@@ -9,6 +9,15 @@
     <string name="course_progress">Course Progress : </string>
     <string name="title_activity_settings">Settings</string>
 
+    <!-- String relate to IntroSlide -->
+    <string name="intro_slide_title_1">Learn from the best in\n the industry</string>
+    <string name="intro_slide_title_2">Learn on the go\n anytime, anywhere</string>
+    <string name="intro_slide_title_3">Resolve all your doubts with\n TA’s &amp; Mentors</string>
+
+    <string name="intro_slide_message_1">Experienced, engaging instructors take you\n through course material, step by step, in our\n high-quality video lessons.</string>
+    <string name="intro_slide_message_2">You can learn anytime, anywhere with our all\n new android app. Download and save videos\n offline.</string>
+    <string name="intro_slide_message_3">Get exclusive access to Live Webinars where\n you can interact with mentors for important\n course topics &amp; can solve all your doubts.</string>
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
@@ -319,4 +328,39 @@
     <string name="logged_in">Logged in successfully !!</string>
     <string name="requested">Requested</string>
     <string name="download_share"><![CDATA[Download & Share]]></string>
+    <string name="pause_course">Pause Course</string>
+    <string name="upgrade_course">Upgrade Course</string>
+    <string name="no_take_me_back">No, Take me back</string>
+    <string name="pause_now">Pause Now</string>
+    <string name="login_desc">You have been logged out of this account.Please login again to Continue</string>
+    <string name="log_in">Log In</string>
+    <string name="share_course">Share Course</string>
+    <string name="rate_course">Rate Course</string>
+    <string name="about_course">About Course</string>
+    <string name="are_you_sure_you_want_to_pause">Are you sure you want to pause?</string>
+    <string name="pause_desc">Pause feature allows to \'pause\' your course during important days such as exam-time. Your course expiry date will be extended by X days if you pause your course for X days (up to 30 days max). Course can be paused-unpaused multiple times.\n\nAll progress related to course material including assignments bookmarks, notes and your doubts that you asked will remain. However, you won\'t be able access course until you unpause.\n</string>
+    <string name="pause_time_left">\nYou have a %s of time left.</string>
+    <string name="update">Update</string>
+    <string name="notes_info">%s | %s</string>
+    <string name="post">Post</string>
+    <string name="leave_a_rating">Leave a rating</string>
+    <string name="rate_course_dialog_text">How would you rate this course overall?</string>
+    <string name="overall_experience">How was the overall experience?</string>
+    <string name="write_a_public_review">Write a public review.</string>
+    <string name="submit_feedback">Submit Feedback</string>
+    <string name="autoplay">AutoPlay</string>
+    <string name="intro_image">intro screen image</string>
+    <string name="explore_now">Explore Now</string>
+    <string name="do_you_want_to_exit">Do you want to exit?</string>
+    <string name="okay">Okay</string>
+    <string name="Ok">Ok</string>
+    <string name="expired_popup_desc">This section is unavailable as your course has been expired.Please buy an extension to watch your videos</string>
+    <string name="login_popup_desc">Please login to use this feature.</string>
+    <string name="unauthorized_popup_desc">You have been logged out of this account.Please login again to Continue</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="logout_message">Are you sure you want to logout?</string>
+    <string name="submit_quiz_message">Are you sure to submit the quiz?</string>
+    <string name="enable">Enable</string>
+    <string name="disabled_wifi_message">WIFI is disabled in your device. Would you like to enable it?</string>
 </resources>

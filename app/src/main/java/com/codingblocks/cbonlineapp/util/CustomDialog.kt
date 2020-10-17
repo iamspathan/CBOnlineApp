@@ -19,82 +19,87 @@ object CustomDialog {
         val confirmDialog = AlertDialog.Builder(context).create()
         val updateView = context.layoutInflater.inflate(R.layout.custom_dialog, null)
         when (type) {
-            "verify" -> {
-                updateView.okBtn.text = context.getString(R.string.verify_title)
-                updateView.description.text = context.getString(R.string.verify_desc)
+            VERIFY -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.verify_title)
+                updateView.dialogDescTv.text = context.getString(R.string.verify_desc)
             }
-            "trial" -> {
-                updateView.okBtn.text = "Explore Now"
-                updateView.description.text = context.getString(R.string.enroll_desc)
+            TRIAL -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.explore_now)
+                updateView.dialogDescTv.text = context.getString(R.string.enroll_desc)
             }
-            "exit" -> {
-                updateView.okBtn.text = "Okay"
-                updateView.description.text = "Do you want to exit?"
-            }
-
-            "leave" -> {
-                updateView.okBtn.text = "Okay"
-                updateView.description.text = "Do you want to exit?"
+            EXIT -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.okay)
+                updateView.dialogDescTv.text = context.getString(R.string.do_you_want_to_exit)
             }
 
-            "wifi" -> {
-                updateView.okBtn.text = "Enable"
-                updateView.description.text =
-                    "WIFI is disabled in your device. Would you like to enable it?"
+            LEAVE -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.okay)
+                updateView.dialogDescTv.text = context.getString(R.string.do_you_want_to_exit)
             }
-            "unavailable" -> {
-                updateView.okBtn.text = "Ok"
-                updateView.description.text =
+
+            WIFI -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.enable)
+                updateView.dialogDescTv.text =
+                    context.getString(R.string.disabled_wifi_message)
+            }
+            UNAVAILABLE -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.Ok)
+                updateView.dialogDescTv.text =
                     context.getString(R.string.unavailable)
             }
-            "expired" -> {
-                updateView.okBtn.text = "Ok"
-                updateView.description.text =
-                    "This section is unavailable as your course has been expired.Please buy an extension to watch your videos"
+            EXPIRED -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.Ok)
+                updateView.dialogDescTv.text =
+                    context.getString(R.string.expired_popup_desc)
             }
-            "logout" -> {
-                updateView.okBtn.text = "Yes"
-                updateView.cancelBtn.text = "No"
-                updateView.description.text = "Are you sure you want to logout?"
+            LOGOUT -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.yes)
+                updateView.dialogNegativeBtn.text = context.getString(R.string.no)
+                updateView.dialogDescTv.text = context.getString(R.string.logout_message)
             }
-            "reset" -> {
-                updateView.okBtn.text = "Yes"
-                updateView.cancelBtn.text = "No"
-                updateView.description.text = "You will lose all your course progress.\nAre you sure you want to reset ?"
+            RESET -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.yes)
+                updateView.dialogNegativeBtn.text = context.getString(R.string.no)
+                updateView.dialogDescTv.text = "You will lose all your course progress.\nAre you sure you want to reset ?"
             }
-            "quiz" -> {
-                updateView.okBtn.text = "Yes"
-                updateView.cancelBtn.text = "Cancel"
-                updateView.description.text = "Are you sure to submit the quiz?"
+            QUIZ -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.yes)
+                updateView.dialogNegativeBtn.text = context.getString(R.string.cancel)
+                updateView.dialogDescTv.text = context.getString(R.string.submit_quiz_message)
             }
-            "file" -> {
+            FILE -> {
                 updateView.apply {
-                    title.text = context.getString(R.string.clean_dialog_title)
-                    description.text = context.getString(R.string.clean_dialog_description)
-                    okBtn.text = context.getString(R.string.clean_dialog_okBtn)
-                    cancelBtn.text = context.getString(R.string.clean_dialog_cancelBtn)
+                    dialogTitleTv.text = context.getString(R.string.clean_dialog_title)
+                    dialogDescTv.text = context.getString(R.string.clean_dialog_description)
+                    dialogPositiveBtn.text = context.getString(R.string.clean_dialog_okBtn)
+                    dialogNegativeBtn.text = context.getString(R.string.clean_dialog_cancelBtn)
                 }
             }
             UNAUTHORIZED -> {
-                updateView.okBtn.text = "Log In"
-                updateView.description.text =
-                    "You have been logged out of this account.Please login again to Continue"
+                updateView.dialogPositiveBtn.text = context.getString(R.string.log_in)
+                updateView.dialogDescTv.text =
+                    context.getString(R.string.unauthorized_popup_desc)
+            }
+            LOGIN -> {
+                updateView.dialogPositiveBtn.text = context.getString(R.string.log_in)
+                updateView.dialogDescTv.text =
+                    context.getString(R.string.login_popup_desc)
             }
         }
-        updateView.okBtn.setOnClickListener {
+        updateView.dialogPositiveBtn.setOnClickListener {
             confirmDialog.dismiss()
             when (type) {
-                "trial" -> context.startActivity(context.intentFor<DashboardActivity>("courseRun" to "mycourses").singleTop())
-                "verify" -> {
+                TRIAL -> context.startActivity(context.intentFor<DashboardActivity>("courseRun" to "mycourses").singleTop())
+                VERIFY -> {
                     context.openChrome("https://account.codingblocks.com/users/me")
                 }
-                "exit" -> {
+                EXIT -> {
                     (context as Activity).finish()
                 }
-                "leave" -> {
+                LEAVE -> {
                     (context as AppCompatActivity).supportFragmentManager.popBackStack()
                 }
-                "wifi" -> {
+                WIFI -> {
                     context.startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
                 }
                 UNAUTHORIZED -> {
@@ -105,10 +110,10 @@ object CustomDialog {
                 }
             }
         }
-        updateView.cancelBtn.setOnClickListener {
+        updateView.dialogNegativeBtn.setOnClickListener {
             confirmDialog.dismiss()
             when (type) {
-                "file" -> {
+                FILE -> {
                     callback(false)
                 }
                 UNAUTHORIZED -> {
